@@ -1,29 +1,24 @@
 {
-  "name": "itbit",
-  "version": "0.0.10",
-  "description": "itbit API client for node.js",
-  "keywords": [
-    "btc",
-    "bitcoin",
-    "itbit",
-    "exchange"
-  ],
-  "author": "Nick Addison",
-  "license": "MIT",
-  "dependencies": {
-    "cheerio": "0.22.0",
-    "querystring": "~0.2.0",
-    "request": "~2.81.0",
-    "underscore": "~1.8.3",
-    "verror": "~1.6.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/naddison36/itbit"
-  },
-  "main": "itbit.js",
-  "bugs": {
-    "url": "https://github.com/naddison36/itbit/issues"
-  },
-  "readmeFilename": "README.md"
+    "name": "itbit",
+    "version": "0.1.0",
+    "description": "itbit API client for node.js",
+    "keywords": ["btc", "bitcoin", "itbit", "exchange"],
+    "author": "Nick Addison",
+    "license": "MIT",
+    "dependencies": {
+        "cheerio": "0.22.0",
+        "querystring": "~0.2.0",
+        "request": "~2.81.0",
+        "underscore": "~1.8.3",
+        "verror": "~1.6.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/stasundr/itbit"
+    },
+    "main": "itbit.js",
+    "bugs": {
+        "url": "https://github.com/stasundr/itbit/issues"
+    },
+    "readmeFilename": "README.md"
 }

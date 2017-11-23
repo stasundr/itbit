@@ -23,22 +23,22 @@ const ItBit = function ItBit(settings) {
 };
 
 function makePublicRequest(version, path, args, callback) {
-    var functionName = 'ItBit.makePublicRequest()';
+    let functionName = 'ItBit.makePublicRequest()';
 
-    var params = querystring.stringify(args);
+    let params = querystring.stringify(args);
     if (params) path = path + '?' + params;
 
-    var server;
+    let server;
     if (version === 'v1') {
         server = self.serverV1;
     } else if (version === 'v2') {
         server = self.serverV2;
     } else {
-        var error = new VError('%s version %s needs to be either v1 or v2', functionName, version);
+        let error = new VError('%s version %s needs to be either v1 or v2', functionName, version);
         return callback(error);
     }
 
-    var options = {
+    let options = {
         method: 'GET',
         uri: server + path,
         headers: {
@@ -52,40 +52,40 @@ function makePublicRequest(version, path, args, callback) {
 }
 
 function makePrivateRequest(method, path, args, callback) {
-    var functionName = 'ItBit.makePrivateRequest()';
+    let functionName = 'ItBit.makePrivateRequest()';
 
     if (!self.key || !self.secret) {
         return callback(new VError('%s must provide key and secret to make a private API request.', functionName));
     }
 
-    var uri = self.serverV1 + path;
+    let uri = self.serverV1 + path;
 
     // compute the post data
-    var postData = '';
+    let postData = '';
     if (method === 'POST' || method === 'PUT') {
         postData = JSON.stringify(args);
     } else if (method === 'GET' && !_.isEmpty(args)) {
         uri += '?' + querystring.stringify(args);
     }
 
-    var timestamp = new Date().getTime();
-    var nonce = self.nonce++;
+    let timestamp = new Date().getTime();
+    let nonce = self.nonce++;
 
     // message is concatenated string of nonce and JSON array of secret, method, uri, json_body, nonce, timestamp
-    var message = nonce + JSON.stringify([method, uri, postData, nonce.toString(), timestamp.toString()]);
+    let message = nonce + JSON.stringify([method, uri, postData, nonce.toString(), timestamp.toString()]);
 
-    var hashBuffer = crypto
+    let hashBuffer = crypto
         .createHash('sha256')
         .update(message)
         .digest();
 
-    var bufferToHash = Buffer.concat([Buffer.from(uri), hashBuffer]);
+    let bufferToHash = Buffer.concat([Buffer.from(uri), hashBuffer]);
 
-    var signer = crypto.createHmac('sha512', self.secret);
+    let signer = crypto.createHmac('sha512', self.secret);
 
-    var signature = signer.update(bufferToHash).digest('base64');
+    let signature = signer.update(bufferToHash).digest('base64');
 
-    var options = {
+    let options = {
         method: method,
         uri: uri,
         headers: {
@@ -102,7 +102,7 @@ function makePrivateRequest(method, path, args, callback) {
 }
 
 function executeRequest(options, callback) {
-    var functionName = 'ItBit.executeRequest()',
+    let functionName = 'ItBit.executeRequest()',
         json,
         requestDesc;
 
@@ -119,7 +119,7 @@ function executeRequest(options, callback) {
     }
 
     request(options, function(err, res, body) {
-        var error = null; // default to no errors
+        let error = null; // default to no errors
 
         if (err) {
             error = new VError(err, '%s failed %s', functionName, requestDesc);
@@ -130,7 +130,7 @@ function executeRequest(options, callback) {
             // try and parse HTML body form response
             $ = cheerio.load(body);
 
-            var responseBody = $('body').text();
+            let responseBody = $('body').text();
 
             if (responseBody) {
                 error = new VError(
@@ -185,7 +185,7 @@ ItBit.prototype.getTrades = function(tickerSymbol, since = 0, callback) {
 };
 
 ItBit.prototype.getWallets = function(userId, callback) {
-    makePrivateRequest('GET', '/wallets', { userId: userId }, callback);
+    makePrivateRequest('GET', '/wallets', { userId }, callback);
 };
 
 ItBit.prototype.getWallet = function(walletId, callback) {
@@ -193,16 +193,16 @@ ItBit.prototype.getWallet = function(walletId, callback) {
 };
 
 ItBit.prototype.getOrders = function(walletId, instrument, status, callback) {
-    var args = {
-        instrument: instrument,
-        status: status,
+    const args = {
+        instrument,
+        status,
     };
 
-    makePrivateRequest('GET', '/wallets/' + walletId + '/orders', args, callback);
+    makePrivateRequest('GET', `/wallets/${walletId}/orders`, args, callback);
 };
 
 ItBit.prototype.getOrder = function(walletId, id, callback) {
-    makePrivateRequest('GET', '/wallets/' + walletId + '/orders/' + id, {}, callback);
+    makePrivateRequest('GET', `/wallets/${walletId}/orders/${id}`, {}, callback);
 };
 
 // price is an optional argument, if not used it must be set to null
@@ -217,47 +217,48 @@ ItBit.prototype.addOrder = function(
     clientOrderIdentifier,
     callback
 ) {
-    var args = {
-        side: side,
-        type: type,
+    const args = {
+        side,
+        type,
         currency: instrument.slice(0, 3),
         amount: amount.toString(),
         price: price.toString(),
-        instrument: instrument,
+        instrument,
     };
 
     if (metadata) {
         args.metadata = metadata;
     }
+
     if (clientOrderIdentifier) {
         args.clientOrderIdentifier = clientOrderIdentifier;
     }
 
-    makePrivateRequest('POST', '/wallets/' + walletId + '/orders', args, callback);
+    makePrivateRequest('POST', `/wallets/${walletId}/orders`, args, callback);
 };
 
 ItBit.prototype.cancelOrder = function(walletId, id, callback) {
-    makePrivateRequest('DELETE', '/wallets/' + walletId + '/orders/' + id, {}, callback);
+    makePrivateRequest('DELETE', `/wallets/${walletId}/orders/${id}`, {}, callback);
 };
 
 ItBit.prototype.getWalletTrades = function(walletId, params, callback) {
-    makePrivateRequest('GET', '/wallets/' + walletId + '/trades', params, callback);
+    makePrivateRequest('GET', `/wallets/${walletId}/trades`, params, callback);
 };
 
 ItBit.prototype.getFundingHistory = function(walletId, params, callback) {
-    makePrivateRequest('GET', '/wallets/' + walletId + '/funding_history', params, callback);
+    makePrivateRequest('GET', `/wallets/${walletId}/funding_history`, params, callback);
 };
 
 ItBit.prototype.cryptocurrency_withdrawals = function(walletId, currency, amount, address, callback) {
-    var args = { currency: currency, amount: amount, address: address };
+    const args = { currency, amount, address };
 
-    makePrivateRequest('POST', '/wallets/' + walletId + '/cryptocurrency_withdrawals', args, callback);
+    makePrivateRequest('POST', `/wallets/${walletId}/cryptocurrency_withdrawals`, args, callback);
 };
 
 ItBit.prototype.cryptocurrency_deposits = function(walletId, currency, callback) {
-    var args = { currency: currency };
+    const args = { currency };
 
-    makePrivateRequest('POST', '/wallets/' + walletId + '/cryptocurrency_deposits', args, callback);
+    makePrivateRequest('POST', `/wallets/${walletId}/cryptocurrency_deposits`, args, callback);
 };
 
 module.exports = ItBit;
