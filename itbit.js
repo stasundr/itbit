@@ -86,8 +86,8 @@ function makePrivateRequest(method, path, args, callback) {
     let signature = signer.update(bufferToHash).digest('base64');
 
     let options = {
-        method: method,
-        uri: uri,
+        method,
+        uri,
         headers: {
             'User-Agent': 'itBit node.js client',
             Authorization: self.key + ':' + signature,
@@ -173,15 +173,15 @@ function executeRequest(options, callback) {
 }
 
 ItBit.prototype.getOrderBook = function(tickerSymbol, callback) {
-    makePublicRequest('v1', '/markets/' + tickerSymbol + '/order_book', {}, callback);
+    makePublicRequest('v1', `/markets/${tickerSymbol}/order_book`, {}, callback);
 };
 
 ItBit.prototype.getTicker = function(tickerSymbol, callback) {
-    makePublicRequest('v1', '/markets/' + tickerSymbol + '/ticker', {}, callback);
+    makePublicRequest('v1', `/markets/${tickerSymbol}/ticker`, {}, callback);
 };
 
-ItBit.prototype.getTrades = function(tickerSymbol, since = 0, callback) {
-    makePublicRequest('v1', `/markets/${tickerSymbol}/trades?since=${since}`, {}, callback);
+ItBit.prototype.getTrades = function(tickerSymbol, since, callback) {
+    makePublicRequest('v1', `/markets/${tickerSymbol}/trades?since=${since || 0}`, {}, callback);
 };
 
 ItBit.prototype.getWallets = function(userId, callback) {
@@ -189,7 +189,7 @@ ItBit.prototype.getWallets = function(userId, callback) {
 };
 
 ItBit.prototype.getWallet = function(walletId, callback) {
-    makePrivateRequest('GET', '/wallets/' + walletId, {}, callback);
+    makePrivateRequest('GET', `/wallets/${walletId}`, {}, callback);
 };
 
 ItBit.prototype.getOrders = function(walletId, instrument, status, callback) {
